@@ -12,6 +12,7 @@ import 'package:testing/models/Report.dart';
 // and inside the folder create a file reportsDB.db
 
 // https://dev-yakuza.posstree.com/en/flutter/widget/sqflite/#outline
+// https://stackoverflow.com/questions/66685369/unit-testing-getxcontroller
 
 class MockSqlController extends SqlController {
   @override
