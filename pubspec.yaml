@@ -39,6 +39,7 @@ dependencies:
   path: ^1.8.0
   mockito: ^5.1.0
   sqflite_common_ffi: ^2.1.1
+  flutter_reactive_ble: ^5.0.2
 
 dev_dependencies:
   flutter_test:

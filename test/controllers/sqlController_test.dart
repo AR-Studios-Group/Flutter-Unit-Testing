@@ -1,15 +1,8 @@
-import 'dart:io';
-
 import 'package:flutter_test/flutter_test.dart';
-import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import 'package:testing/controllers/sqlController.dart';
 import 'package:testing/models/Report.dart';
-
-// In the project directory create a folder assets
-// and inside the folder create a file reportsDB.db
 
 // https://dev-yakuza.posstree.com/en/flutter/widget/sqflite/#outline
 // https://stackoverflow.com/questions/66685369/unit-testing-getxcontroller
@@ -17,10 +10,11 @@ import 'package:testing/models/Report.dart';
 class MockSqlController extends SqlController {
   @override
   Future<Database?> open() async {
+    late Database? _database;
     try {
-      final database =
-          await databaseFactoryFfi.openDatabase('../../../assets/reportsDB.db');
-      database.execute('''
+      _database = await openDatabase('../../assets/reportsDB.db', version: 1,
+          onCreate: (Database _db, int _version) async {
+        _db.execute('''
         CREATE TABLE Reports (
           create_date TEXT PRIMARY KEY, 
           device_name TEXT,
@@ -29,83 +23,69 @@ class MockSqlController extends SqlController {
           alias TEXT, 
           installation_result TEXT
         )
-        ''');
-      print(db);
-      return database;
-    } catch (err) {
-      print(err);
-      return null;
+      ''');
+      });
+    } catch (e) {
+      _database = null;
     }
+    return Future.value(_database);
   }
 }
 
 void main() {
-  sqfliteFfiInit();
+  group("Initilization, checking value of constants and state variables", () {
+    test("Initilization - Success", () async {
+      // Arrange
+      final db = MockSqlController();
 
-  setUp(() {
-    File(join('assets', 'reportsDB.db'))
-        .copySync(join('assets', 'reportsDB.db'));
+      // Act
+
+      // Assert
+      expect(db.reports.isEmpty, true);
+      expect(SqlController.tableName, 'Reports');
+
+      // Not possible
+      // expect(db.db, isInstanceOf<Database>());
+    });
   });
 
-  test("SQL Database Initization", () async {
-    // Checking if the opening and closing of the database
-    final db = await MockSqlController();
+  group("Addition of a new item in the database", () {
+    test("Addition - Success", () async {
+      // Arrange
+      final report = Report("create_date", "device_name", "userId", "phoneId",
+          "alias", "installation_result");
+      final db = MockSqlController();
 
-    expect(db.reports.isEmpty, true);
+      // Act
+      final res = await db.add(report);
 
-    await db.close();
-
-    expect(db.db, null);
+      // Assert
+      expect(res, true);
+      expect(db.reports.length, 1);
+    });
   });
 
-  test("Adding item to DB", () async {
-    final db = MockSqlController();
+  group("Remove an item from the database", () {
+    test("Remove - Success", () async {
+      // Arrange
+      final report = Report("create_date", "device_name", "userId", "phoneId",
+          "alias", "installation_result");
 
-    final r = Report("create_date", "device_name", "userId", "phoneId", "alias",
-        "installation_result");
+      final db = MockSqlController();
 
-    await db.add(r);
+      // Act
+      await db.add(report);
+      final res = await db.delete(report);
 
-    expect(db.reports[0], r);
-  });
-
-  test("Removing an item", () async {
-    final db = MockSqlController();
-
-    final r = Report("create_date", "device_name", "userId", "phoneId", "alias",
-        "installation_result");
-
-    await db.add(r);
-    await db.delete(r);
-
-    expect(db.reports.isEmpty, true);
-  });
-
-  test("Read items in the database", () async {
-    final db = MockSqlController();
-
-    final r = Report("create_date", "device_name", "userId", "phoneId", "alias",
-        "installation_result");
-
-    await db.add(r);
-    await db.add(r);
-
-    db.readAll();
-
-    print(db.reports);
-
-    expect(db.reports.length, 2);
-  });
-
-  test("Update item in the database", () async {
-    final db = MockSqlController();
-
-    final r = Report("create_date", "device_name", "userId", "phoneId", "alias",
-        "installation_result");
-
-    final r2 = Report("create_date", "DEVICE NAME", "userId", "phoneId",
-        "alias", "installation_result");
-
-    await db.updateItem(r2);
+      // Assert
+      expect(res, true);
+      expect(db.reports.length, 0);
+    });
   });
 }
+
+/* 
+  Other database function can't be tested
+  as those methods depend on performing database
+  query to update the class state.
+*/

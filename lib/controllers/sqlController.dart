@@ -37,22 +37,26 @@ class SqlController extends GetxController {
     db?.close();
   }
 
-  Future<void> add(Report report) async {
+  Future<bool> add(Report report) async {
     try {
       await db?.insert(tableName, report.toMap());
       reports.insert(0, report);
+      return true;
     } catch (err) {
       print(err);
+      return false;
     }
   }
 
-  Future<void> delete(Report report) async {
+  Future<bool> delete(Report report) async {
     try {
       await db?.delete(tableName,
           where: 'create_date = ?', whereArgs: [report.create_date]);
       reports.remove(report);
+      return true;
     } catch (err) {
       print(err);
+      return false;
     }
   }
 
