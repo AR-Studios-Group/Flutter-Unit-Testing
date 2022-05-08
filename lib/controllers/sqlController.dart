@@ -37,14 +37,12 @@ class SqlController extends GetxController {
     db?.close();
   }
 
-  Future<bool> add(Report report) async {
+  Future<void> add(Report report) async {
     try {
       await db?.insert(tableName, report.toMap());
       reports.insert(0, report);
-      return true;
     } catch (err) {
       print(err);
-      return false;
     }
   }
 
@@ -72,7 +70,6 @@ class SqlController extends GetxController {
 
   Future<void> readAll() async {
     try {
-      reports.clear();
       var results = await db?.rawQuery('SELECT * FROM $tableName') ?? [];
 
       if (results.isNotEmpty) {

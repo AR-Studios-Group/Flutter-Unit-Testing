@@ -33,36 +33,33 @@ class MockSqlController extends SqlController {
 }
 
 void main() {
-  group("Initilization, checking value of constants and state variables", () {
-    test("Initilization - Success", () async {
-      // Arrange
-      final db = MockSqlController();
+  test("Initilization, checking value of constants and state variables",
+      () async {
+    // Arrange
+    final db = MockSqlController();
 
-      // Act
+    // Act
 
-      // Assert
-      expect(db.reports.isEmpty, true);
-      expect(SqlController.tableName, 'Reports');
+    // Assert
+    expect(db.reports.isEmpty, true);
+    expect(SqlController.tableName, 'Reports');
 
-      // Not possible
-      // expect(db.db, isInstanceOf<Database>());
-    });
+    // Not possible
+    // expect(db.db, isInstanceOf<Database>());
   });
 
-  group("Addition of a new item in the database", () {
-    test("Addition - Success", () async {
-      // Arrange
-      final report = Report("create_date", "device_name", "userId", "phoneId",
-          "alias", "installation_result");
-      final db = MockSqlController();
+  test("Addition of a new item in the database", () async {
+    // Arrange
+    final report = Report("create_date", "device_name", "userId", "phoneId",
+        "alias", "installation_result");
+    final db = MockSqlController();
 
-      // Act
-      final res = await db.add(report);
+    // Act
+    final res = await db.add(report);
 
-      // Assert
-      expect(res, true);
-      expect(db.reports.length, 1);
-    });
+    // Assert
+    expect(res, true);
+    expect(db.reports.length, 1);
   });
 
   group("Remove an item from the database", () {
