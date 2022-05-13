@@ -71,6 +71,7 @@ class SqlController extends GetxController {
   Future<void> readAll() async {
     try {
       var results = await db?.rawQuery('SELECT * FROM $tableName') ?? [];
+      reports.clear();
 
       if (results.isNotEmpty) {
         for (var r in results) {

@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../controllers/bleController.dart';
 import '../controllers/sqlController.dart';
-import '../models/Report.dart';
 
 class Home extends StatelessWidget {
   final SqlController dbController = Get.put(SqlController());
+  final BleController bleController = Get.put(BleController());
 
   Home({Key? key}) : super(key: key);
-
-  var reports = [];
 
   @override
   Widget build(BuildContext context) {
@@ -19,28 +18,16 @@ class Home extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text("Wiget Testing"),
             TextButton(
-                key: Key("add button"),
-                onPressed: () async {
-                  DateTime _now = DateTime.now();
-
-                  var creationTime =
-                      '${_now.hour}:${_now.minute}:${_now.second}.${_now.millisecond}';
-
-                  var r = Report(creationTime, "device_name", "userId",
-                      "phoneId", "alias", "installation_result");
-
-                  await dbController.add(r);
+                onPressed: () {
+                  bleController.scanForDevices();
                 },
-                child: const Text('Add')),
+                child: const Text("Search Devices")),
             TextButton(
-                key: Key("read all"),
-                onPressed: () async {
-                  await dbController.readAll();
-                  print(dbController.reports.length);
+                onPressed: () {
+                  bleController.connectToDevice(bleController.nearByDevices[0]);
                 },
-                child: const Text('Read All')),
+                child: const Text("Connect to Device"))
           ],
         ),
       ),

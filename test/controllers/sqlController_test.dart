@@ -55,10 +55,9 @@ void main() {
     final db = MockSqlController();
 
     // Act
-    final res = await db.add(report);
+    await db.add(report);
 
     // Assert
-    expect(res, true);
     expect(db.reports.length, 1);
   });
 
